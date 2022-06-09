@@ -5,8 +5,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 $token = "";
 
-if ($method == "POST") {
-  $token = $_POST['token'];
+if ($method == "POST" && isset($_COOKIE['token'])) {
+  $token = $_COOKIE['token'];
 } else {
   http_response_code(405);
   exit("Invalid request method");
@@ -18,6 +18,9 @@ if ($token == null || $token == "") {
 }
 
 require_once "../../db/auth.php";
+
+setcookie("token", "", time() - 3600, "/");
+setcookie("email", "", time() - 3600, "/");
 
 if (!logout($token)) {
   http_response_code(500);

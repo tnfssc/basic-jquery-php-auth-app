@@ -28,5 +28,8 @@ if ($user == null) {
   exit("Invalid credentials");
 }
 
+setcookie("token", $user['token'], time() + 86400, "/");
+setcookie("email", $user['email'], time() + 86400, "/");
+
 http_response_code(200);
 exit(json_encode($user));

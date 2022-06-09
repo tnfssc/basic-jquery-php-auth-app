@@ -12,15 +12,22 @@
 
 <body>
   <script>
-    function handleLogin() {
+    function handleRegister() {
       const email = $('#email').val();
       const password = $('#password').val();
+      const confirmPassword = $('#password-confirm').val();
+      const firstName = $('#first_name').val();
+      const lastName = $('#last_name').val();
 
       if (!(/[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(email))) {
         alert('Invalid email');
         return;
       }
-      if (!email || !password) {
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+      if (!email || !password || !firstName || !lastName) {
         alert('Please fill in all fields');
         return;
       }
@@ -32,40 +39,23 @@
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
+      formData.append('first_name', firstName);
+      formData.append('last_name', lastName);
+
       $.ajax({
-        url: '/api/auth/login.php',
+        url: '/api/auth/register.php',
         type: 'POST',
         data: formData,
         success: function(data) {
+          alert("Successfully registered. Please login to continue.");
           window.location.href = '/';
         },
         error: function(data) {
-          alert('Invalid email or password');
+          alert('Some error occurred. ' + error);
         },
         processData: false,
         contentType: false,
       });
-    }
-
-    function handleLogout() {
-      $.ajax({
-        url: '/api/auth/logout.php',
-        type: 'POST',
-        success: function(data) {
-          window.location.reload();
-        },
-        error: function(data) {
-          alert('Some error occurred');
-        },
-      });
-    }
-
-    function handleRegister() {
-      window.location.href = '/register.php';
-    }
-
-    function handleViewDetails() {
-      window.location.href = '/mydetails.php';
     }
   </script>
   <?php
@@ -79,9 +69,23 @@
     $email = $_COOKIE['email'];
   }
 
-  if ($token == "" || $token == null || $email == "" || $email == null) {
+  if (!($token == "" || $token == null || $email == "" || $email == null)) {
+    exit("
+      <script>
+        window.location.href = '/';
+      </script>
+    ");
+  } else {
     exit("
       <form>
+        <div class=\"mb-3\">
+          <label for=\"first_name\" class=\"form-label\">First Name</label>
+          <input type=\"text\" class=\"form-control\" id=\"first_name\" placeholder=\"First Name\" required>
+        </div>
+        <div class=\"mb-3\">
+          <label for=\"last_name\" class=\"form-label\">Last Name</label>
+          <input type=\"text\" class=\"form-control\" id=\"last_name\" placeholder=\"Last Name\" required>
+        </div>
         <div class=\"mb-3\">
           <label for=\"email\" class=\"form-label\">Email</label>
           <input type=\"email\" class=\"form-control\" id=\"email\" placeholder=\"Enter email\" required>
@@ -90,17 +94,12 @@
           <label for=\"password\" class=\"form-label\">Password</label>
           <input type=\"password\" class=\"form-control\" id=\"password\" placeholder=\"Password\" required>
         </div>
-        <button type=\"button\" class=\"btn btn-primary \" onclick=\"handleLogin();\">Login</button>
-        <button type=\"button\" class=\"btn btn-secondary \" onclick=\"handleRegister();\">Register</button>
+        <div class=\"mb-3\">
+          <label for=\"password-confirm\" class=\"form-label\">Confirm Password</label>
+          <input type=\"password\" class=\"form-control\" id=\"password-confirm\" placeholder=\"Confirm Password\" required>
+        </div>
+        <button type=\"button\" class=\"btn btn-primary \" onclick=\"handleRegister();\">Register</button>
       </form>
-    ");
-  } else {
-    exit("
-      <div>
-        <h1>Welcome, $email</h1>
-      </div>
-      <button class=\"btn btn-secondary \" onclick=\"handleViewDetails();\">My Details</button>
-      <button class=\"btn btn-danger \" onclick=\"handleLogout();\">Logout</button>
     ");
   }
 

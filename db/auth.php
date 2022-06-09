@@ -2,7 +2,7 @@
 
 function login($email, $password)
 {
-  require "../../db/index.php";
+  require "index.php";
   $sql = "SELECT email, hashed_password, first_name, last_name FROM users WHERE email = '$email'";
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {
@@ -12,14 +12,15 @@ function login($email, $password)
     $last_name = $row["last_name"];
     if (password_verify($password, $hashed_password)) {
       $token = bin2hex(openssl_random_pseudo_bytes(16));
-      $sql = "INSERT INTO tokens (token, email) VALUES ('$token', '$email')";
+      $sql = "INSERT INTO tokens (token, email, expiry) VALUES ('$token', '$email', NOW() + INTERVAL 1 DAY)";
       if ($conn->query($sql) === TRUE) {
         $conn->close();
         return array(
           "token" => $token,
           "first_name" => $first_name,
           "last_name" => $last_name,
-          "email" => $email
+          "email" => $email,
+          "expiry" => date("Y-m-d H:i:s", strtotime("+1 day"))
         );
       } else {
         $conn->close();
@@ -37,7 +38,7 @@ function login($email, $password)
 
 function logout($token)
 {
-  require "../../db/index.php";
+  require "index.php";
   $sql = "DELETE FROM tokens WHERE token = '$token'";
   if ($conn->query($sql) === TRUE) {
     $conn->close();
@@ -50,12 +51,33 @@ function logout($token)
 
 function register($email, $password, $first_name, $last_name)
 {
-  require "../../db/index.php";
+  require "index.php";
   $hashed_password = password_hash($password, PASSWORD_DEFAULT);
   $sql = "INSERT INTO users (email, hashed_password, first_name, last_name) VALUES ('$email', '$hashed_password', '$first_name', '$last_name')";
   if ($conn->query($sql) === TRUE) {
     $conn->close();
     return true;
+  } else {
+    $conn->close();
+    return false;
+  }
+}
+
+function verify_token($token, $email)
+{
+  require "index.php";
+  $sql = "SELECT email, expiry FROM tokens WHERE token = '$token' AND email = '$email'";
+  $result = $conn->query($sql);
+  if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $expiry = $row["expiry"];
+    if (strtotime($expiry) > time()) {
+      $conn->close();
+      return true;
+    } else {
+      $conn->close();
+      return false;
+    }
   } else {
     $conn->close();
     return false;
