@@ -2,7 +2,7 @@
 
 function login($email, $password)
 {
-  require "index.php";
+  require "db.php";
   $sql = "SELECT email, hashed_password, first_name, last_name FROM users WHERE email = '$email'";
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {
@@ -38,7 +38,7 @@ function login($email, $password)
 
 function logout($token)
 {
-  require "index.php";
+  require "db.php";
   $sql = "DELETE FROM tokens WHERE token = '$token'";
   if ($conn->query($sql) === TRUE) {
     $conn->close();
@@ -51,7 +51,7 @@ function logout($token)
 
 function register($email, $password, $first_name, $last_name)
 {
-  require "index.php";
+  require "db.php";
   $hashed_password = password_hash($password, PASSWORD_DEFAULT);
   $sql = "INSERT INTO users (email, hashed_password, first_name, last_name) VALUES ('$email', '$hashed_password', '$first_name', '$last_name')";
   if ($conn->query($sql) === TRUE) {
@@ -65,7 +65,7 @@ function register($email, $password, $first_name, $last_name)
 
 function verify_token($token, $email)
 {
-  require "index.php";
+  require "db.php";
   $sql = "SELECT email, expiry FROM tokens WHERE token = '$token' AND email = '$email'";
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {

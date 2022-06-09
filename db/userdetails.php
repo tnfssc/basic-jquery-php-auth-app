@@ -1,7 +1,7 @@
 <?php
 function user_details($email)
 {
-  require "index.php";
+  require "db.php";
   $sql = "SELECT email, first_name, last_name FROM users WHERE email = '$email'";
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {
