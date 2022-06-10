@@ -19,7 +19,7 @@ if ($email == "" || $password == "" || $email == null || $password == null) {
   exit("Invalid request");
 }
 
-require_once "../../db/auth.php";
+require_once "../../db/mongo-auth.php";
 
 $user = login($email, $password);
 

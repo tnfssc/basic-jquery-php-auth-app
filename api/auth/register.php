@@ -28,7 +28,7 @@ if ($first_name == "" || $last_name == "" || $first_name == null || $last_name =
   exit("Invalid request");
 }
 
-require_once "../../db/auth.php";
+require_once "../../db/mongo-auth.php";
 
 if (!register($email, $password, $first_name, $last_name)) {
   http_response_code(500);

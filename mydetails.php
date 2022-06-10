@@ -34,7 +34,7 @@
       </script>
     ");
   } else {
-    require "db/auth.php";
+    require "db/mongo-auth.php";
     if (!verify_token($token, $email)) {
       exit("
         <script>
@@ -43,7 +43,7 @@
       ");
     }
 
-    require "db/userdetails.php";
+    require "db/mongo-userdetails.php";
 
     $user = user_details($email);
 
