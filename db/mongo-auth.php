@@ -9,6 +9,7 @@ function login($email, $password)
     $hashed_password = $user["hashed_password"];
     $first_name = $user["first_name"];
     $last_name = $user["last_name"];
+    $age = $user["age"];
     if (password_verify($password, $hashed_password)) {
       $token = bin2hex(openssl_random_pseudo_bytes(16));
       $collection->updateOne(
@@ -24,6 +25,7 @@ function login($email, $password)
         "token" => $token,
         "first_name" => $first_name,
         "last_name" => $last_name,
+        "age" => $age,
         "email" => $email,
         "expiry" => date("Y-m-d H:i:s", strtotime("+1 day"))
       );
@@ -50,7 +52,7 @@ function logout($token)
   );
 }
 
-function register($email, $password, $first_name, $last_name)
+function register($email, $password, $first_name, $last_name, $age)
 {
   require "mongo-db.php";
   $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -60,7 +62,8 @@ function register($email, $password, $first_name, $last_name)
       "email" => $email,
       "hashed_password" => $hashed_password,
       "first_name" => $first_name,
-      "last_name" => $last_name
+      "last_name" => $last_name,
+      "age" => $age
     )
   );
 }
